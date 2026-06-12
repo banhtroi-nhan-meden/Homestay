@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Gen Labs - Form Khởi Động Homestay / Resort</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #355C4B;
+            --primary-dark: #1F3A31;
+            --primary-light: #EAF3EE;
+            --accent-color: #C9905A;
+            --accent-light: #FFF4E8;
+            --text-color: #263238;
+            --muted-color: #6B7772;
+            --border-color: #D7E0DB;
+            --white: #ffffff;
+            --bg: #F6F8F6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: radial-gradient(circle at top left, #fff7ed 0, transparent 28%), linear-gradient(135deg, #f6f8f6 0%, #eef5f1 100%); color: var(--text-color); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 16px; }
+        .form-container { width: 100%; max-width: 640px; background: rgba(255,255,255,.96); border-radius: 22px; box-shadow: 0 16px 45px rgba(31,58,49,.10); padding: 22px; position: relative; border: 1px solid rgba(53,92,75,.12); overflow: hidden; }
+        .form-container:before { content: ""; position: absolute; inset: 0 0 auto 0; height: 7px; background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); }
+        .brand-block { padding: 10px 0 18px; }
+        .brand-kicker { font-size: 12px; letter-spacing: 1.6px; color: var(--accent-color); font-weight: 800; text-transform: uppercase; }
+        .brand-title { font-size: 24px; line-height: 1.15; font-weight: 800; margin-top: 6px; color: var(--primary-dark); }
+        .brand-subtitle { font-size: 13px; color: var(--muted-color); margin-top: 8px; line-height: 1.5; }
+        .progress-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; position: relative; overflow-x: auto; padding: 6px 0; white-space: nowrap; }
+        .progress-container::-webkit-scrollbar { display: none; }
+        .progress-bar-line, .progress-line-fill { position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 2px; }
+        .progress-bar-line { background-color: var(--border-color); width: 100%; z-index: 1; }
+        .progress-line-fill { background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); width: 0%; z-index: 2; transition: width .3s ease; }
+        .step-dot { width: 30px; height: 30px; border-radius: 50%; background-color: var(--white); border: 2px solid var(--border-color); display: inline-flex; justify-content: center; align-items: center; font-size: 12px; font-weight: 700; z-index: 3; cursor: pointer; transition: all .25s ease; color: #82918b; margin-right: 10px; flex-shrink: 0; }
+        .step-dot:last-child { margin-right: 0; }
+        .step-dot.active { border-color: var(--primary-color); background: var(--primary-color); color: var(--white); box-shadow: 0 4px 12px rgba(53,92,75,.24); }
+        .step-dot.completed { border-color: var(--accent-color); background-color: var(--accent-light); color: var(--primary-dark); }
+        .form-section { display: none; }
+        .form-section.active { display: block; animation: fadeIn .35s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .section-note { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--accent-color); font-weight: 800; margin-bottom: 4px; }
+        h2 { font-size: 20px; font-weight: 800; margin-bottom: 18px; line-height: 1.3; border-bottom: 1px solid var(--primary-light); padding-bottom: 10px; color: var(--primary-dark); }
+        .intro-text { font-size: 13.5px; line-height: 1.55; color: var(--muted-color); margin-bottom: 16px; }
+        .project-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px; border: 1px solid var(--border-color); background: #FBFDFB; border-radius: 16px; margin-bottom: 22px; }
+        .question-group { margin-bottom: 22px; }
+        .question-group.compact { margin-bottom: 0; }
+        .question-title { font-size: 14.5px; font-weight: 700; margin-bottom: 8px; line-height: 1.45; color: #243B33; }
+        .q-number { display: inline-flex; min-width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 8px; background: var(--primary-light); color: var(--primary-dark); margin-right: 6px; font-size: 12px; }
+        .hint { font-size: 12.2px; line-height: 1.45; color: var(--muted-color); background: #FBFBF8; border: 1px solid #ECE6D9; border-radius: 10px; padding: 9px 10px; margin-bottom: 10px; }
+        .text-input-field, .text-area-field { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 14px; outline: none; transition: all .2s; background-color: #fcfdfc; color: var(--text-color); }
+        .text-area-field { resize: vertical; min-height: 86px; line-height: 1.45; }
+        .text-input-field:focus, .text-area-field:focus { border-color: var(--primary-color); background-color: var(--white); box-shadow: 0 0 0 3px rgba(53,92,75,.08); }
+
+        .option-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-item { display: flex; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all .2s ease; background-color: #fcfdfc; }
+        .option-item input[type="radio"], .option-item input[type="checkbox"] { margin-top: 2px; margin-right: 12px; accent-color: var(--primary-color); width: 16px; height: 16px; flex-shrink: 0; }
+        .option-text { font-size: 13.5px; line-height: 1.4; color: var(--text-color); }
+        .option-item.selected { border-color: var(--primary-color); background-color: var(--primary-light); box-shadow: 0 0 0 2px rgba(53,92,75,.04); }
+        .other-input-wrapper { margin-top: -4px; display: none; width: 100%; }
+        .other-text-input { width: 100%; padding: 11px 12px; border: 1px solid var(--primary-color); border-radius: 10px; font-size: 13.5px; outline: none; background-color: #fff; }
+        .other-text-input:focus { box-shadow: 0 0 0 3px rgba(53,92,75,.08); }
+
+        .output-grid { display: grid; gap: 10px; }
+        .output-card { padding: 14px; border-radius: 14px; border: 1px solid var(--border-color); background: linear-gradient(180deg, #fff, #fbfdfb); }
+        .output-card strong { display: block; color: var(--primary-dark); font-size: 14px; margin-bottom: 4px; }
+        .output-card span { display: block; color: var(--muted-color); font-size: 12.8px; line-height: 1.45; }
+        .nav-buttons { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; border-top: 1px solid #edf1f2; padding-top: 20px; }
+        button { flex: 1; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 800; border: none; cursor: pointer; transition: all .2s ease; }
+        button:active { transform: scale(.97); }
+        .btn-back { background-color: #f1f3f2; color: #5f6663; }
+        .btn-next { background: var(--primary-color); color: var(--white); }
+        .btn-back:disabled { opacity: 0; visibility: hidden; }
+        .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,.96); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; font-weight: 700; color: var(--primary-color); font-size: 15px; text-align: center; padding: 20px; }
+        .spinner { width: 36px; height: 36px; border: 4px solid var(--border-color); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 520px) { .form-container { padding: 18px; border-radius: 18px; } .brand-title { font-size: 21px; } .project-meta { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div id="loadingText">Đang xử lý biểu mẫu...</div></div>
+<div class="form-container" id="formContainer">
+    <div class="brand-block">
+        <div class="brand-kicker">AI GEN LABS</div>
+        <div class="brand-title">Form Khởi Động Business Homestay / Resort</div>
+        <div class="brand-subtitle">AI Agent Ops Onboarding Form | Sale • Marketing • Operation • Automation<br>Mục tiêu form: thu thập đầy đủ thông tin để AI Gen Labs có thể xây dựng chiến lược khởi động business từ A-Z cho homestay/resort, bao gồm định vị, sản phẩm, kênh bán hàng, ngân sách marketing, vận hành và tự động hóa bằng AI Agent.</div>
+    </div>
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar-line"></div>
+        <div class="progress-line-fill" id="progressFill"></div>
+        <div class="step-dot active" onclick="goToSection(0)">1</div>
+<div class="step-dot" onclick="goToSection(1)">2</div>
+<div class="step-dot" onclick="goToSection(2)">3</div>
+<div class="step-dot" onclick="goToSection(3)">4</div>
+<div class="step-dot" onclick="goToSection(4)">5</div>
+<div class="step-dot" onclick="goToSection(5)">6</div>
+<div class="step-dot" onclick="goToSection(6)">7</div>
+<div class="step-dot" onclick="goToSection(7)">8</div>
+<div class="step-dot" onclick="goToSection(8)">9</div>
+    </div>
+    <form id="masterForm" action="https://formspree.io/f/mzdqryql" method="POST">
+        <input type="hidden" name="_subject" value="AI Gen Labs - Homestay Resort Onboarding Form">
+        <div class="form-section active">
+            <div class="section-note">Phần 1 / 9</div>
+            <h2>A. Tổng quan dự án</h2>
+            <div class="project-meta">
+                <div class="question-group compact"><div class="question-title">Tên dự án</div><input type="text" name="Ten_Du_An" class="text-input-field" placeholder="Nhập tên dự án..."></div>
+                <div class="question-group compact"><div class="question-title">Người phụ trách</div><input type="text" name="Nguoi_Phu_Trach" class="text-input-field" placeholder="Nhập họ tên người phụ trách..."></div>
+                <div class="question-group compact"><div class="question-title">Số điện thoại / Email</div><input type="text" name="Lien_He" class="text-input-field" placeholder="Nhập SĐT hoặc email..."></div>
+                <div class="question-group compact"><div class="question-title">Ngày điền form</div><input type="date" name="Ngay_Dien_Form" class="text-input-field"></div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">1</span> Tên homestay / resort / mô hình lưu trú của bạn là gì?</div>
+                <div class="hint">Gợi ý: Ví dụ: Eco Lodge, Farmstay, Boutique Homestay, Villa Retreat, Glamping Site.</div>
+                <textarea name="Q1_Ten_homestay_resort_mo_hinh_luu_tru_cua_ban_la_gi" class="text-area-field" rows="3" placeholder="Nhập câu trả lời tại đây..."></textarea>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">2</span> Dự án đang ở giai đoạn nào?</div>
+                <div class="hint">Gợi ý: Chưa xây dựng / Đang xây dựng / Sắp khai trương / Đã vận hành nhưng chưa tối ưu / Đã có khách ổn định.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q2_Choice_Chua_xay_dung" value="Chưa xây dựng"><span class="option-text">Chưa xây dựng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q2_Choice_ang_xay_dung" value="Đang xây dựng"><span class="option-text">Đang xây dựng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q2_Choice_Sap_khai_truong" value="Sắp khai trương"><span class="option-text">Sắp khai trương</span></label>
+    <label class="option-item"><input type="checkbox" name="Q2_Choice_a_van_hanh_nhung_chua_toi_uu" value="Đã vận hành nhưng chưa tối ưu"><span class="option-text">Đã vận hành nhưng chưa tối ưu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q2_Choice_a_co_khach_on_inh" value="Đã có khách ổn định"><span class="option-text">Đã có khách ổn định</span></label>
+    <label class="option-item"><input type="checkbox" name="Q2_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q2_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">3</span> Địa điểm dự án nằm ở đâu?</div>
+                <div class="hint">Gợi ý: Tỉnh, huyện, xã, khu vực du lịch gần nhất, điểm nổi bật xung quanh.</div>
+                <textarea name="Q3_ia_iem_du_an_nam_o_au" class="text-area-field" rows="3" placeholder="Nhập câu trả lời tại đây..."></textarea>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">4</span> Quy mô hiện tại hoặc dự kiến của dự án là bao nhiêu?</div>
+                <div class="hint">Gợi ý: Số phòng, số villa, số bungalow, số lều, sức chứa tối đa mỗi ngày.</div>
+                <textarea name="Q4_Quy_mo_hien_tai_hoac_du_kien_cua_du_an_la_bao_nhieu" class="text-area-field" rows="3" placeholder="Nhập câu trả lời tại đây..."></textarea>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">5</span> Mô hình định vị chính của dự án là gì?</div>
+                <div class="hint">Gợi ý: Nghỉ dưỡng thiên nhiên / Gia đình / Cặp đôi / Healing retreat / Trekking / Farmstay / Luxury / Budget / Off-grid / Local experience.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Nghi_duong_thien_nhien" value="Nghỉ dưỡng thiên nhiên"><span class="option-text">Nghỉ dưỡng thiên nhiên</span></label>
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Gia_inh" value="Gia đình"><span class="option-text">Gia đình</span></label>
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Cap_oi" value="Cặp đôi"><span class="option-text">Cặp đôi</span></label>
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Healing_retreat" value="Healing retreat"><span class="option-text">Healing retreat</span></label>
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Trekking" value="Trekking"><span class="option-text">Trekking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Farmstay" value="Farmstay"><span class="option-text">Farmstay</span></label>
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Luxury" value="Luxury"><span class="option-text">Luxury</span></label>
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Budget" value="Budget"><span class="option-text">Budget</span></label>
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Off_grid" value="Off-grid"><span class="option-text">Off-grid</span></label>
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Local_experience" value="Local experience"><span class="option-text">Local experience</span></label>
+    <label class="option-item"><input type="checkbox" name="Q5_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q5_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div>
+        </div><div class="form-section">
+            <div class="section-note">Phần 2 / 9</div>
+            <h2>B. Tầm nhìn, khách hàng và định vị thương hiệu</h2>
+            <div class="question-group">
+                <div class="question-title"><span class="q-number">6</span> Bạn muốn khách hàng nhớ đến nơi này vì điều gì nhất?</div>
+                <div class="hint">Gợi ý: Không gian đẹp, trải nghiệm thiên nhiên, dịch vụ cá nhân hóa, giá tốt, yên tĩnh, thiết kế độc đáo, văn hóa bản địa, ẩm thực, hoạt động ngoài trời.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q6_Choice_Khong_gian_ep" value="Không gian đẹp"><span class="option-text">Không gian đẹp</span></label>
+    <label class="option-item"><input type="checkbox" name="Q6_Choice_Trai_nghiem_thien_nhien" value="Trải nghiệm thiên nhiên"><span class="option-text">Trải nghiệm thiên nhiên</span></label>
+    <label class="option-item"><input type="checkbox" name="Q6_Choice_Dich_vu_ca_nhan_hoa" value="Dịch vụ cá nhân hóa"><span class="option-text">Dịch vụ cá nhân hóa</span></label>
+    <label class="option-item"><input type="checkbox" name="Q6_Choice_Gia_tot" value="Giá tốt"><span class="option-text">Giá tốt</span></label>
+    <label class="option-item"><input type="checkbox" name="Q6_Choice_Yen_tinh" value="Yên tĩnh"><span class="option-text">Yên tĩnh</span></label>
+    <label class="option-item"><input type="checkbox" name="Q6_Choice_Thiet_ke_oc_ao" value="Thiết kế độc đáo"><span class="option-text">Thiết kế độc đáo</span></label>
+    <label class="option-item"><input type="checkbox" name="Q6_Choice_Van_hoa_ban_ia" value="Văn hóa bản địa"><span class="option-text">Văn hóa bản địa</span></label>
+    <label class="option-item"><input type="checkbox" name="Q6_Choice_Am_thuc" value="Ẩm thực"><span class="option-text">Ẩm thực</span></label>
+    <label class="option-item"><input type="checkbox" name="Q6_Choice_Hoat_ong_ngoai_troi" value="Hoạt động ngoài trời"><span class="option-text">Hoạt động ngoài trời</span></label>
+    <label class="option-item"><input type="checkbox" name="Q6_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q6_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">7</span> Nhóm khách hàng mục tiêu chính là ai?</div>
+                <div class="hint">Gợi ý: Gia đình, cặp đôi, nhóm bạn, khách nước ngoài, dân văn phòng, digital nomad, khách công ty, khách retreat, khách trekking.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q7_Choice_Gia_inh" value="Gia đình"><span class="option-text">Gia đình</span></label>
+    <label class="option-item"><input type="checkbox" name="Q7_Choice_Cap_oi" value="Cặp đôi"><span class="option-text">Cặp đôi</span></label>
+    <label class="option-item"><input type="checkbox" name="Q7_Choice_Nhom_ban" value="Nhóm bạn"><span class="option-text">Nhóm bạn</span></label>
+    <label class="option-item"><input type="checkbox" name="Q7_Choice_Khach_nuoc_ngoai" value="Khách nước ngoài"><span class="option-text">Khách nước ngoài</span></label>
+    <label class="option-item"><input type="checkbox" name="Q7_Choice_Dan_van_phong" value="Dân văn phòng"><span class="option-text">Dân văn phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q7_Choice_Digital_nomad" value="Digital nomad"><span class="option-text">Digital nomad</span></label>
+    <label class="option-item"><input type="checkbox" name="Q7_Choice_Khach_cong_ty" value="Khách công ty"><span class="option-text">Khách công ty</span></label>
+    <label class="option-item"><input type="checkbox" name="Q7_Choice_Khach_retreat" value="Khách retreat"><span class="option-text">Khách retreat</span></label>
+    <label class="option-item"><input type="checkbox" name="Q7_Choice_Khach_trekking" value="Khách trekking"><span class="option-text">Khách trekking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q7_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q7_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">8</span> Khách hàng lý tưởng của bạn có mức chi tiêu khoảng bao nhiêu cho một chuyến đi?</div>
+                <div class="hint">Gợi ý: Dưới 1 triệu/người, 1-3 triệu/người, 3-5 triệu/người, trên 5 triệu/người.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q8_Choice_Duoi_1_trieu_nguoi" value="Dưới 1 triệu/người"><span class="option-text">Dưới 1 triệu/người</span></label>
+    <label class="option-item"><input type="checkbox" name="Q8_Choice_1_3_trieu_nguoi" value="1-3 triệu/người"><span class="option-text">1-3 triệu/người</span></label>
+    <label class="option-item"><input type="checkbox" name="Q8_Choice_3_5_trieu_nguoi" value="3-5 triệu/người"><span class="option-text">3-5 triệu/người</span></label>
+    <label class="option-item"><input type="checkbox" name="Q8_Choice_Tren_5_trieu_nguoi" value="Trên 5 triệu/người"><span class="option-text">Trên 5 triệu/người</span></label>
+    <label class="option-item"><input type="checkbox" name="Q8_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q8_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">9</span> Bạn muốn thương hiệu của mình thuộc phân khúc nào?</div>
+                <div class="hint">Gợi ý: Bình dân / Trung cấp / Cao cấp / Boutique premium / Luxury niche.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q9_Choice_Binh_dan" value="Bình dân"><span class="option-text">Bình dân</span></label>
+    <label class="option-item"><input type="checkbox" name="Q9_Choice_Trung_cap" value="Trung cấp"><span class="option-text">Trung cấp</span></label>
+    <label class="option-item"><input type="checkbox" name="Q9_Choice_Cao_cap" value="Cao cấp"><span class="option-text">Cao cấp</span></label>
+    <label class="option-item"><input type="checkbox" name="Q9_Choice_Boutique_premium" value="Boutique premium"><span class="option-text">Boutique premium</span></label>
+    <label class="option-item"><input type="checkbox" name="Q9_Choice_Luxury_niche" value="Luxury niche"><span class="option-text">Luxury niche</span></label>
+    <label class="option-item"><input type="checkbox" name="Q9_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q9_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">10</span> Hiện tại bạn đã có bộ nhận diện thương hiệu chưa?</div>
+                <div class="hint">Gợi ý: Tên thương hiệu, logo, màu sắc, font chữ, hình ảnh mẫu, tone giọng truyền thông, slogan.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q10_Choice_Ten_thuong_hieu" value="Tên thương hiệu"><span class="option-text">Tên thương hiệu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q10_Choice_Logo" value="Logo"><span class="option-text">Logo</span></label>
+    <label class="option-item"><input type="checkbox" name="Q10_Choice_Mau_sac" value="Màu sắc"><span class="option-text">Màu sắc</span></label>
+    <label class="option-item"><input type="checkbox" name="Q10_Choice_Font_chu" value="Font chữ"><span class="option-text">Font chữ</span></label>
+    <label class="option-item"><input type="checkbox" name="Q10_Choice_Hinh_anh_mau" value="Hình ảnh mẫu"><span class="option-text">Hình ảnh mẫu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q10_Choice_Tone_giong_truyen_thong" value="Tone giọng truyền thông"><span class="option-text">Tone giọng truyền thông</span></label>
+    <label class="option-item"><input type="checkbox" name="Q10_Choice_Slogan" value="Slogan"><span class="option-text">Slogan</span></label>
+    <label class="option-item"><input type="checkbox" name="Q10_Choice_Chua_co_bo_nhan_dien" value="Chưa có bộ nhận diện"><span class="option-text">Chưa có bộ nhận diện</span></label>
+    <label class="option-item"><input type="checkbox" name="Q10_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q10_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div>
+        </div><div class="form-section">
+            <div class="section-note">Phần 3 / 9</div>
+            <h2>C. Sản phẩm, dịch vụ và trải nghiệm khách hàng</h2>
+            <div class="question-group">
+                <div class="question-title"><span class="q-number">11</span> Các loại phòng hoặc gói lưu trú bạn đang có hoặc dự kiến có là gì?</div>
+                <div class="hint">Gợi ý: Phòng đôi, phòng gia đình, bungalow, villa, lều glamping, dorm, cabin ven suối, nhà gỗ, A-frame.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q11_Choice_Phong_oi" value="Phòng đôi"><span class="option-text">Phòng đôi</span></label>
+    <label class="option-item"><input type="checkbox" name="Q11_Choice_Phong_gia_inh" value="Phòng gia đình"><span class="option-text">Phòng gia đình</span></label>
+    <label class="option-item"><input type="checkbox" name="Q11_Choice_Bungalow" value="Bungalow"><span class="option-text">Bungalow</span></label>
+    <label class="option-item"><input type="checkbox" name="Q11_Choice_Villa" value="Villa"><span class="option-text">Villa</span></label>
+    <label class="option-item"><input type="checkbox" name="Q11_Choice_Leu_glamping" value="Lều glamping"><span class="option-text">Lều glamping</span></label>
+    <label class="option-item"><input type="checkbox" name="Q11_Choice_Dorm" value="Dorm"><span class="option-text">Dorm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q11_Choice_Cabin_ven_suoi" value="Cabin ven suối"><span class="option-text">Cabin ven suối</span></label>
+    <label class="option-item"><input type="checkbox" name="Q11_Choice_Nha_go" value="Nhà gỗ"><span class="option-text">Nhà gỗ</span></label>
+    <label class="option-item"><input type="checkbox" name="Q11_Choice_A_frame" value="A-frame"><span class="option-text">A-frame</span></label>
+    <label class="option-item"><input type="checkbox" name="Q11_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q11_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">12</span> Bạn có những dịch vụ cộng thêm nào?</div>
+                <div class="hint">Gợi ý: Ăn sáng, BBQ, trekking, picnic, hồ bơi, tour địa phương, thuê xe, đưa đón, workshop, spa, yoga, cà phê, nhà hàng.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_An_sang" value="Ăn sáng"><span class="option-text">Ăn sáng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_BBQ" value="BBQ"><span class="option-text">BBQ</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Trekking" value="Trekking"><span class="option-text">Trekking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Picnic" value="Picnic"><span class="option-text">Picnic</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Ho_boi" value="Hồ bơi"><span class="option-text">Hồ bơi</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Tour_ia_phuong" value="Tour địa phương"><span class="option-text">Tour địa phương</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Thue_xe" value="Thuê xe"><span class="option-text">Thuê xe</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_ua_on" value="Đưa đón"><span class="option-text">Đưa đón</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Workshop" value="Workshop"><span class="option-text">Workshop</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Spa" value="Spa"><span class="option-text">Spa</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Yoga" value="Yoga"><span class="option-text">Yoga</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Ca_phe" value="Cà phê"><span class="option-text">Cà phê</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Nha_hang" value="Nhà hàng"><span class="option-text">Nhà hàng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q12_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q12_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">13</span> Một hành trình trải nghiệm lý tưởng của khách từ lúc đặt phòng đến lúc check-out sẽ như thế nào?</div>
+                <div class="hint">Gợi ý: Khách biết đến bạn ở đâu, đặt phòng ra sao, nhận hướng dẫn thế nào, đến nơi được đón tiếp ra sao, trải nghiệm gì, sau khi về có được chăm sóc lại không.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Khach_biet_en_qua_social_OTA_Google" value="Khách biết đến qua social/OTA/Google"><span class="option-text">Khách biết đến qua social/OTA/Google</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Khach_hoi_phong" value="Khách hỏi phòng"><span class="option-text">Khách hỏi phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Tu_van_bao_gia" value="Tư vấn &amp; báo giá"><span class="option-text">Tư vấn &amp; báo giá</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Giu_phong" value="Giữ phòng"><span class="option-text">Giữ phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Thu_coc" value="Thu cọc"><span class="option-text">Thu cọc</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Gui_huong_dan_truoc_chuyen_i" value="Gửi hướng dẫn trước chuyến đi"><span class="option-text">Gửi hướng dẫn trước chuyến đi</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Check_in" value="Check-in"><span class="option-text">Check-in</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Trai_nghiem_tai_cho" value="Trải nghiệm tại chỗ"><span class="option-text">Trải nghiệm tại chỗ</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Check_out" value="Check-out"><span class="option-text">Check-out</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Xin_review" value="Xin review"><span class="option-text">Xin review</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Cham_soc_lai_rebooking" value="Chăm sóc lại / rebooking"><span class="option-text">Chăm sóc lại / rebooking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q13_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q13_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">14</span> Điểm đặc biệt nhất của trải nghiệm lưu trú là gì?</div>
+                <div class="hint">Gợi ý: Ví dụ: ngủ cạnh suối, ăn BBQ ngoài trời, trekking rừng, ngắm sao, tắm suối, trải nghiệm văn hóa bản địa, farm-to-table.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q14_Choice_Ngu_canh_suoi" value="Ngủ cạnh suối"><span class="option-text">Ngủ cạnh suối</span></label>
+    <label class="option-item"><input type="checkbox" name="Q14_Choice_An_BBQ_ngoai_troi" value="Ăn BBQ ngoài trời"><span class="option-text">Ăn BBQ ngoài trời</span></label>
+    <label class="option-item"><input type="checkbox" name="Q14_Choice_Trekking_rung" value="Trekking rừng"><span class="option-text">Trekking rừng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q14_Choice_Ngam_sao" value="Ngắm sao"><span class="option-text">Ngắm sao</span></label>
+    <label class="option-item"><input type="checkbox" name="Q14_Choice_Tam_suoi" value="Tắm suối"><span class="option-text">Tắm suối</span></label>
+    <label class="option-item"><input type="checkbox" name="Q14_Choice_Trai_nghiem_van_hoa_ban_ia" value="Trải nghiệm văn hóa bản địa"><span class="option-text">Trải nghiệm văn hóa bản địa</span></label>
+    <label class="option-item"><input type="checkbox" name="Q14_Choice_Farm_to_table" value="Farm-to-table"><span class="option-text">Farm-to-table</span></label>
+    <label class="option-item"><input type="checkbox" name="Q14_Choice_Khong_gian_thiet_ke_ac_biet" value="Không gian thiết kế đặc biệt"><span class="option-text">Không gian thiết kế đặc biệt</span></label>
+    <label class="option-item"><input type="checkbox" name="Q14_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q14_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">15</span> Hiện tại bạn đã có quy trình tiêu chuẩn cho phục vụ khách chưa?</div>
+                <div class="hint">Gợi ý: Check-in, check-out, dọn phòng, xử lý phàn nàn, hướng dẫn khách, chăm sóc sau lưu trú.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q15_Choice_Check_in" value="Check-in"><span class="option-text">Check-in</span></label>
+    <label class="option-item"><input type="checkbox" name="Q15_Choice_Check_out" value="Check-out"><span class="option-text">Check-out</span></label>
+    <label class="option-item"><input type="checkbox" name="Q15_Choice_Don_phong" value="Dọn phòng"><span class="option-text">Dọn phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q15_Choice_Xu_ly_phan_nan" value="Xử lý phàn nàn"><span class="option-text">Xử lý phàn nàn</span></label>
+    <label class="option-item"><input type="checkbox" name="Q15_Choice_Huong_dan_khach" value="Hướng dẫn khách"><span class="option-text">Hướng dẫn khách</span></label>
+    <label class="option-item"><input type="checkbox" name="Q15_Choice_Cham_soc_sau_luu_tru" value="Chăm sóc sau lưu trú"><span class="option-text">Chăm sóc sau lưu trú</span></label>
+    <label class="option-item"><input type="checkbox" name="Q15_Choice_Chua_co_SOP" value="Chưa có SOP"><span class="option-text">Chưa có SOP</span></label>
+    <label class="option-item"><input type="checkbox" name="Q15_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q15_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div>
+        </div><div class="form-section">
+            <div class="section-note">Phần 4 / 9</div>
+            <h2>D. Giá bán, doanh thu và chiến lược kinh doanh</h2>
+            <div class="question-group">
+                <div class="question-title"><span class="q-number">16</span> Giá phòng hoặc giá gói lưu trú hiện tại/dự kiến là bao nhiêu?</div>
+                <div class="hint">Gợi ý: Giá ngày thường, cuối tuần, lễ Tết, mùa cao điểm, mùa thấp điểm.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q16_Choice_Gia_ngay_thuong" value="Giá ngày thường"><span class="option-text">Giá ngày thường</span></label>
+    <label class="option-item"><input type="checkbox" name="Q16_Choice_Gia_cuoi_tuan" value="Giá cuối tuần"><span class="option-text">Giá cuối tuần</span></label>
+    <label class="option-item"><input type="checkbox" name="Q16_Choice_Gia_le_Tet" value="Giá lễ Tết"><span class="option-text">Giá lễ Tết</span></label>
+    <label class="option-item"><input type="checkbox" name="Q16_Choice_Gia_mua_cao_iem" value="Giá mùa cao điểm"><span class="option-text">Giá mùa cao điểm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q16_Choice_Gia_mua_thap_iem" value="Giá mùa thấp điểm"><span class="option-text">Giá mùa thấp điểm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q16_Choice_Gia_combo_goi_trai_nghiem" value="Giá combo/gói trải nghiệm"><span class="option-text">Giá combo/gói trải nghiệm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q16_Choice_Chua_xac_inh" value="Chưa xác định"><span class="option-text">Chưa xác định</span></label>
+    <label class="option-item"><input type="checkbox" name="Q16_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q16_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">17</span> Bạn muốn doanh thu đến từ những nguồn nào?</div>
+                <div class="hint">Gợi ý: Phòng lưu trú, F&amp;B, tour, workshop, thuê địa điểm, retreat, khách công ty, dịch vụ trải nghiệm, bán sản phẩm địa phương.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q17_Choice_Phong_luu_tru" value="Phòng lưu trú"><span class="option-text">Phòng lưu trú</span></label>
+    <label class="option-item"><input type="checkbox" name="Q17_Choice_F_B" value="F&amp;B"><span class="option-text">F&amp;B</span></label>
+    <label class="option-item"><input type="checkbox" name="Q17_Choice_Tour" value="Tour"><span class="option-text">Tour</span></label>
+    <label class="option-item"><input type="checkbox" name="Q17_Choice_Workshop" value="Workshop"><span class="option-text">Workshop</span></label>
+    <label class="option-item"><input type="checkbox" name="Q17_Choice_Thue_ia_iem" value="Thuê địa điểm"><span class="option-text">Thuê địa điểm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q17_Choice_Retreat" value="Retreat"><span class="option-text">Retreat</span></label>
+    <label class="option-item"><input type="checkbox" name="Q17_Choice_Khach_cong_ty" value="Khách công ty"><span class="option-text">Khách công ty</span></label>
+    <label class="option-item"><input type="checkbox" name="Q17_Choice_Dich_vu_trai_nghiem" value="Dịch vụ trải nghiệm"><span class="option-text">Dịch vụ trải nghiệm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q17_Choice_Ban_san_pham_ia_phuong" value="Bán sản phẩm địa phương"><span class="option-text">Bán sản phẩm địa phương</span></label>
+    <label class="option-item"><input type="checkbox" name="Q17_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q17_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">18</span> Mục tiêu doanh thu trong 6-12 tháng đầu là bao nhiêu?</div>
+                <div class="hint">Gợi ý: Theo tháng, theo quý hoặc theo năm.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q18_Choice_Theo_thang" value="Theo tháng"><span class="option-text">Theo tháng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q18_Choice_Theo_quy" value="Theo quý"><span class="option-text">Theo quý</span></label>
+    <label class="option-item"><input type="checkbox" name="Q18_Choice_Theo_nam" value="Theo năm"><span class="option-text">Theo năm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q18_Choice_Chua_xac_inh" value="Chưa xác định"><span class="option-text">Chưa xác định</span></label>
+    <label class="option-item"><input type="checkbox" name="Q18_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q18_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">19</span> Công suất phòng mục tiêu là bao nhiêu?</div>
+                <div class="hint">Gợi ý: Ví dụ: 20%, 40%, 60%, 80% theo từng giai đoạn.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q19_Choice_20" value="20%"><span class="option-text">20%</span></label>
+    <label class="option-item"><input type="checkbox" name="Q19_Choice_40" value="40%"><span class="option-text">40%</span></label>
+    <label class="option-item"><input type="checkbox" name="Q19_Choice_60" value="60%"><span class="option-text">60%</span></label>
+    <label class="option-item"><input type="checkbox" name="Q19_Choice_80" value="80%"><span class="option-text">80%</span></label>
+    <label class="option-item"><input type="checkbox" name="Q19_Choice_Theo_tung_giai_oan" value="Theo từng giai đoạn"><span class="option-text">Theo từng giai đoạn</span></label>
+    <label class="option-item"><input type="checkbox" name="Q19_Choice_Chua_xac_inh" value="Chưa xác định"><span class="option-text">Chưa xác định</span></label>
+    <label class="option-item"><input type="checkbox" name="Q19_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q19_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">20</span> Bạn đang có ngân sách đầu tư ban đầu khoảng bao nhiêu?</div>
+                <div class="hint">Gợi ý: Chi phí xây dựng, setup nội thất, vận hành ban đầu, công cụ quản lý, hình ảnh/video ban đầu.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q20_Choice_Chi_phi_xay_dung" value="Chi phí xây dựng"><span class="option-text">Chi phí xây dựng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q20_Choice_Setup_noi_that" value="Setup nội thất"><span class="option-text">Setup nội thất</span></label>
+    <label class="option-item"><input type="checkbox" name="Q20_Choice_Van_hanh_ban_au" value="Vận hành ban đầu"><span class="option-text">Vận hành ban đầu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q20_Choice_Cong_cu_quan_ly" value="Công cụ quản lý"><span class="option-text">Công cụ quản lý</span></label>
+    <label class="option-item"><input type="checkbox" name="Q20_Choice_Hinh_anh_video_ban_au" value="Hình ảnh/video ban đầu"><span class="option-text">Hình ảnh/video ban đầu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q20_Choice_Ngan_sach_du_phong" value="Ngân sách dự phòng"><span class="option-text">Ngân sách dự phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q20_Choice_Chua_xac_inh" value="Chưa xác định"><span class="option-text">Chưa xác định</span></label>
+    <label class="option-item"><input type="checkbox" name="Q20_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q20_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div>
+        </div><div class="form-section">
+            <div class="section-note">Phần 5 / 9</div>
+            <h2>E. Sale, kênh bán và chăm sóc khách hàng</h2>
+            <div class="question-group">
+                <div class="question-title"><span class="q-number">21</span> Hiện tại bạn muốn bán phòng qua những kênh nào?</div>
+                <div class="hint">Gợi ý: Facebook, TikTok, Instagram, Website, Zalo, Agoda, Booking.com, Airbnb, Traveloka, Klook, đại lý tour, cộng tác viên.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Facebook" value="Facebook"><span class="option-text">Facebook</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_TikTok" value="TikTok"><span class="option-text">TikTok</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Instagram" value="Instagram"><span class="option-text">Instagram</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Website" value="Website"><span class="option-text">Website</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Zalo" value="Zalo"><span class="option-text">Zalo</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Agoda" value="Agoda"><span class="option-text">Agoda</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Booking_com" value="Booking.com"><span class="option-text">Booking.com</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Airbnb" value="Airbnb"><span class="option-text">Airbnb</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Traveloka" value="Traveloka"><span class="option-text">Traveloka</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Klook" value="Klook"><span class="option-text">Klook</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_ai_ly_tour" value="Đại lý tour"><span class="option-text">Đại lý tour</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Cong_tac_vien" value="Cộng tác viên"><span class="option-text">Cộng tác viên</span></label>
+    <label class="option-item"><input type="checkbox" name="Q21_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q21_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">22</span> Bạn đã có tài sản bán hàng nào chưa?</div>
+                <div class="hint">Gợi ý: Fanpage, website, landing page, Zalo OA, Google Business Profile, TikTok, Instagram, brochure, bảng giá, hình ảnh, video, review khách hàng.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Fanpage" value="Fanpage"><span class="option-text">Fanpage</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Website" value="Website"><span class="option-text">Website</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Landing_page" value="Landing page"><span class="option-text">Landing page</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Zalo_OA" value="Zalo OA"><span class="option-text">Zalo OA</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Google_Business_Profile" value="Google Business Profile"><span class="option-text">Google Business Profile</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_TikTok" value="TikTok"><span class="option-text">TikTok</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Instagram" value="Instagram"><span class="option-text">Instagram</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Brochure" value="Brochure"><span class="option-text">Brochure</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Bang_gia" value="Bảng giá"><span class="option-text">Bảng giá</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Hinh_anh" value="Hình ảnh"><span class="option-text">Hình ảnh</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Video" value="Video"><span class="option-text">Video</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Review_khach_hang" value="Review khách hàng"><span class="option-text">Review khách hàng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Chua_co_tai_san_ban_hang" value="Chưa có tài sản bán hàng"><span class="option-text">Chưa có tài sản bán hàng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q22_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q22_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">23</span> Quy trình xử lý khách hỏi phòng hiện tại như thế nào?</div>
+                <div class="hint">Gợi ý: Ai trả lời khách, trả lời qua kênh nào, báo giá ra sao, giữ phòng thế nào, thu cọc thế nào, xác nhận booking thế nào.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Co_nguoi_truc_inbox" value="Có người trực inbox"><span class="option-text">Có người trực inbox</span></label>
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Tu_van_qua_ien_thoai" value="Tư vấn qua điện thoại"><span class="option-text">Tư vấn qua điện thoại</span></label>
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Tu_van_qua_Zalo" value="Tư vấn qua Zalo"><span class="option-text">Tư vấn qua Zalo</span></label>
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Gui_bang_gia" value="Gửi bảng giá"><span class="option-text">Gửi bảng giá</span></label>
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Kiem_tra_phong_trong" value="Kiểm tra phòng trống"><span class="option-text">Kiểm tra phòng trống</span></label>
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Giu_phong" value="Giữ phòng"><span class="option-text">Giữ phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Thu_coc" value="Thu cọc"><span class="option-text">Thu cọc</span></label>
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Xac_nhan_booking" value="Xác nhận booking"><span class="option-text">Xác nhận booking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Gui_huong_dan_truoc_chuyen_i" value="Gửi hướng dẫn trước chuyến đi"><span class="option-text">Gửi hướng dẫn trước chuyến đi</span></label>
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Chua_co_quy_trinh_ro" value="Chưa có quy trình rõ"><span class="option-text">Chưa có quy trình rõ</span></label>
+    <label class="option-item"><input type="checkbox" name="Q23_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q23_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">24</span> Những câu hỏi khách thường hỏi nhất là gì?</div>
+                <div class="hint">Gợi ý: Giá phòng, đường đi, ăn uống, phụ thu, trẻ em, thú cưng, hủy phòng, thời tiết, hoạt động, khoảng cách từ thành phố.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_Gia_phong" value="Giá phòng"><span class="option-text">Giá phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_uong_i" value="Đường đi"><span class="option-text">Đường đi</span></label>
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_An_uong" value="Ăn uống"><span class="option-text">Ăn uống</span></label>
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_Phu_thu" value="Phụ thu"><span class="option-text">Phụ thu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_Tre_em" value="Trẻ em"><span class="option-text">Trẻ em</span></label>
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_Thu_cung" value="Thú cưng"><span class="option-text">Thú cưng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_Huy_phong" value="Hủy phòng"><span class="option-text">Hủy phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_Thoi_tiet" value="Thời tiết"><span class="option-text">Thời tiết</span></label>
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_Hoat_ong_trai_nghiem" value="Hoạt động trải nghiệm"><span class="option-text">Hoạt động trải nghiệm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_Khoang_cach_tu_thanh_pho" value="Khoảng cách từ thành phố"><span class="option-text">Khoảng cách từ thành phố</span></label>
+    <label class="option-item"><input type="checkbox" name="Q24_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q24_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">25</span> Bạn có muốn AI Agent tự động hỗ trợ phần nào trong sale không?</div>
+                <div class="hint">Gợi ý: Gợi ý chọn phòng, báo giá, kiểm tra phòng trống, gửi lịch trình, nhắc cọc, chăm sóc trước chuyến đi, upsell BBQ/tour/đưa đón.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q25_Choice_Goi_y_chon_phong" value="Gợi ý chọn phòng"><span class="option-text">Gợi ý chọn phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q25_Choice_Bao_gia" value="Báo giá"><span class="option-text">Báo giá</span></label>
+    <label class="option-item"><input type="checkbox" name="Q25_Choice_Kiem_tra_phong_trong" value="Kiểm tra phòng trống"><span class="option-text">Kiểm tra phòng trống</span></label>
+    <label class="option-item"><input type="checkbox" name="Q25_Choice_Gui_lich_trinh" value="Gửi lịch trình"><span class="option-text">Gửi lịch trình</span></label>
+    <label class="option-item"><input type="checkbox" name="Q25_Choice_Nhac_coc" value="Nhắc cọc"><span class="option-text">Nhắc cọc</span></label>
+    <label class="option-item"><input type="checkbox" name="Q25_Choice_Cham_soc_truoc_chuyen_i" value="Chăm sóc trước chuyến đi"><span class="option-text">Chăm sóc trước chuyến đi</span></label>
+    <label class="option-item"><input type="checkbox" name="Q25_Choice_Upsell_BBQ" value="Upsell BBQ"><span class="option-text">Upsell BBQ</span></label>
+    <label class="option-item"><input type="checkbox" name="Q25_Choice_Upsell_tour" value="Upsell tour"><span class="option-text">Upsell tour</span></label>
+    <label class="option-item"><input type="checkbox" name="Q25_Choice_Upsell_ua_on" value="Upsell đưa đón"><span class="option-text">Upsell đưa đón</span></label>
+    <label class="option-item"><input type="checkbox" name="Q25_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q25_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div>
+        </div><div class="form-section">
+            <div class="section-note">Phần 6 / 9</div>
+            <h2>F. Khởi tạo kênh bán hàng &amp; ngân sách marketing</h2>
+            <div class="question-group">
+                <div class="question-title"><span class="q-number">26</span> Hiện tại bạn đã có những kênh bán hàng nào?</div>
+                <div class="hint">Gợi ý: Facebook Page, TikTok, Instagram, Google Business Profile/Google Maps, Website, Zalo OA, Booking.com, Agoda, Traveloka, Airbnb, Klook, đại lý tour, cộng tác viên bán phòng.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Facebook_Page" value="Facebook Page"><span class="option-text">Facebook Page</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_TikTok" value="TikTok"><span class="option-text">TikTok</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Instagram" value="Instagram"><span class="option-text">Instagram</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Google_Business_Profile_Google_Maps" value="Google Business Profile/Google Maps"><span class="option-text">Google Business Profile/Google Maps</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Website" value="Website"><span class="option-text">Website</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Zalo_OA" value="Zalo OA"><span class="option-text">Zalo OA</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Booking_com" value="Booking.com"><span class="option-text">Booking.com</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Agoda" value="Agoda"><span class="option-text">Agoda</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Traveloka" value="Traveloka"><span class="option-text">Traveloka</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Airbnb" value="Airbnb"><span class="option-text">Airbnb</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Klook" value="Klook"><span class="option-text">Klook</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_ai_ly_tour" value="Đại lý tour"><span class="option-text">Đại lý tour</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Cong_tac_vien_ban_phong" value="Cộng tác viên bán phòng"><span class="option-text">Cộng tác viên bán phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Chua_co_kenh_nao" value="Chưa có kênh nào"><span class="option-text">Chưa có kênh nào</span></label>
+    <label class="option-item"><input type="checkbox" name="Q26_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q26_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">27</span> Với từng kênh đã có, vui lòng cung cấp tình trạng hiện tại.</div>
+                <div class="hint">Gợi ý: Đã tạo nhưng chưa tối ưu / đang hoạt động / có booking / chưa có review / bị lỗi xác minh / chưa cập nhật hình ảnh / chưa có người quản lý.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q27_Choice_a_tao_nhung_chua_toi_uu" value="Đã tạo nhưng chưa tối ưu"><span class="option-text">Đã tạo nhưng chưa tối ưu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q27_Choice_ang_hoat_ong" value="Đang hoạt động"><span class="option-text">Đang hoạt động</span></label>
+    <label class="option-item"><input type="checkbox" name="Q27_Choice_a_co_booking" value="Đã có booking"><span class="option-text">Đã có booking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q27_Choice_Chua_co_review" value="Chưa có review"><span class="option-text">Chưa có review</span></label>
+    <label class="option-item"><input type="checkbox" name="Q27_Choice_Bi_loi_xac_minh" value="Bị lỗi xác minh"><span class="option-text">Bị lỗi xác minh</span></label>
+    <label class="option-item"><input type="checkbox" name="Q27_Choice_Chua_cap_nhat_hinh_anh" value="Chưa cập nhật hình ảnh"><span class="option-text">Chưa cập nhật hình ảnh</span></label>
+    <label class="option-item"><input type="checkbox" name="Q27_Choice_Chua_co_nguoi_quan_ly" value="Chưa có người quản lý"><span class="option-text">Chưa có người quản lý</span></label>
+    <label class="option-item"><input type="checkbox" name="Q27_Choice_Khong_ro_tinh_trang" value="Không rõ tình trạng"><span class="option-text">Không rõ tình trạng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q27_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q27_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">28</span> Bạn cần AI Gen Labs hỗ trợ khởi tạo mới những kênh nào?</div>
+                <div class="hint">Gợi ý: Facebook Page, TikTok Business, Google Business Profile, Booking.com, Agoda, Traveloka, Airbnb, Website/Landing Page, Zalo OA, Instagram, Klook.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Facebook_Page" value="Facebook Page"><span class="option-text">Facebook Page</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_TikTok_Business" value="TikTok Business"><span class="option-text">TikTok Business</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Google_Business_Profile" value="Google Business Profile"><span class="option-text">Google Business Profile</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Booking_com" value="Booking.com"><span class="option-text">Booking.com</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Agoda" value="Agoda"><span class="option-text">Agoda</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Traveloka" value="Traveloka"><span class="option-text">Traveloka</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Airbnb" value="Airbnb"><span class="option-text">Airbnb</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Website_Landing_Page" value="Website/Landing Page"><span class="option-text">Website/Landing Page</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Zalo_OA" value="Zalo OA"><span class="option-text">Zalo OA</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Instagram" value="Instagram"><span class="option-text">Instagram</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Klook" value="Klook"><span class="option-text">Klook</span></label>
+    <label class="option-item"><input type="checkbox" name="Q28_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q28_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">29</span> Google Business Profile / Google Maps đã được xác minh chưa?</div>
+                <div class="hint">Gợi ý: Chưa tạo / Đã tạo nhưng chưa xác minh / Đã xác minh / Không biết tình trạng / Bị trùng địa điểm / Cần tối ưu lại thông tin.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q29_Choice_Chua_tao" value="Chưa tạo"><span class="option-text">Chưa tạo</span></label>
+    <label class="option-item"><input type="checkbox" name="Q29_Choice_a_tao_nhung_chua_xac_minh" value="Đã tạo nhưng chưa xác minh"><span class="option-text">Đã tạo nhưng chưa xác minh</span></label>
+    <label class="option-item"><input type="checkbox" name="Q29_Choice_a_xac_minh" value="Đã xác minh"><span class="option-text">Đã xác minh</span></label>
+    <label class="option-item"><input type="checkbox" name="Q29_Choice_Khong_biet_tinh_trang" value="Không biết tình trạng"><span class="option-text">Không biết tình trạng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q29_Choice_Bi_trung_ia_iem" value="Bị trùng địa điểm"><span class="option-text">Bị trùng địa điểm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q29_Choice_Can_toi_uu_lai_thong_tin" value="Cần tối ưu lại thông tin"><span class="option-text">Cần tối ưu lại thông tin</span></label>
+    <label class="option-item"><input type="checkbox" name="Q29_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q29_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">30</span> Bạn đã có đầy đủ thông tin cơ bản để tạo kênh bán hàng chưa?</div>
+                <div class="hint">Gợi ý: Tên thương hiệu, địa chỉ, số điện thoại, email, mô tả ngắn, mô tả dài, bảng giá, chính sách nhận phòng, chính sách hủy phòng, hình ảnh phòng, hình ảnh tiện ích, giấy tờ pháp lý nếu nền tảng yêu cầu.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Ten_thuong_hieu" value="Tên thương hiệu"><span class="option-text">Tên thương hiệu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_ia_chi" value="Địa chỉ"><span class="option-text">Địa chỉ</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_So_ien_thoai" value="Số điện thoại"><span class="option-text">Số điện thoại</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Email" value="Email"><span class="option-text">Email</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Mo_ta_ngan" value="Mô tả ngắn"><span class="option-text">Mô tả ngắn</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Mo_ta_dai" value="Mô tả dài"><span class="option-text">Mô tả dài</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Bang_gia" value="Bảng giá"><span class="option-text">Bảng giá</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Chinh_sach_nhan_phong" value="Chính sách nhận phòng"><span class="option-text">Chính sách nhận phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Chinh_sach_huy_phong" value="Chính sách hủy phòng"><span class="option-text">Chính sách hủy phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Hinh_anh_phong" value="Hình ảnh phòng"><span class="option-text">Hình ảnh phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Hinh_anh_tien_ich" value="Hình ảnh tiện ích"><span class="option-text">Hình ảnh tiện ích</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Giay_to_phap_ly_neu_nen_tang_yeu_cau" value="Giấy tờ pháp lý nếu nền tảng yêu cầu"><span class="option-text">Giấy tờ pháp lý nếu nền tảng yêu cầu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Chua_u_thong_tin" value="Chưa đủ thông tin"><span class="option-text">Chưa đủ thông tin</span></label>
+    <label class="option-item"><input type="checkbox" name="Q30_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q30_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">31</span> Bạn đã có bộ hình ảnh/video đủ chuẩn để đăng lên các kênh bán hàng chưa?</div>
+                <div class="hint">Gợi ý: Chưa có / Có ảnh điện thoại / Có ảnh chuyên nghiệp / Có video ngắn / Có flycam / Có ảnh từng loại phòng / Có ảnh trải nghiệm / Cần tư vấn shot list sản xuất nội dung.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q31_Choice_Chua_co" value="Chưa có"><span class="option-text">Chưa có</span></label>
+    <label class="option-item"><input type="checkbox" name="Q31_Choice_Co_anh_ien_thoai" value="Có ảnh điện thoại"><span class="option-text">Có ảnh điện thoại</span></label>
+    <label class="option-item"><input type="checkbox" name="Q31_Choice_Co_anh_chuyen_nghiep" value="Có ảnh chuyên nghiệp"><span class="option-text">Có ảnh chuyên nghiệp</span></label>
+    <label class="option-item"><input type="checkbox" name="Q31_Choice_Co_video_ngan" value="Có video ngắn"><span class="option-text">Có video ngắn</span></label>
+    <label class="option-item"><input type="checkbox" name="Q31_Choice_Co_flycam" value="Có flycam"><span class="option-text">Có flycam</span></label>
+    <label class="option-item"><input type="checkbox" name="Q31_Choice_Co_anh_tung_loai_phong" value="Có ảnh từng loại phòng"><span class="option-text">Có ảnh từng loại phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q31_Choice_Co_anh_trai_nghiem" value="Có ảnh trải nghiệm"><span class="option-text">Có ảnh trải nghiệm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q31_Choice_Can_tu_van_shot_list_san_xuat_noi_dung" value="Cần tư vấn shot list sản xuất nội dung"><span class="option-text">Cần tư vấn shot list sản xuất nội dung</span></label>
+    <label class="option-item"><input type="checkbox" name="Q31_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q31_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">32</span> Bạn muốn ưu tiên kênh bán hàng nào trong 90 ngày đầu?</div>
+                <div class="hint">Gợi ý: Facebook, TikTok, Google Maps, Booking.com, Agoda, Traveloka, Airbnb, Website, Zalo, OTA khác.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_Facebook" value="Facebook"><span class="option-text">Facebook</span></label>
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_TikTok" value="TikTok"><span class="option-text">TikTok</span></label>
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_Google_Maps" value="Google Maps"><span class="option-text">Google Maps</span></label>
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_Booking_com" value="Booking.com"><span class="option-text">Booking.com</span></label>
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_Agoda" value="Agoda"><span class="option-text">Agoda</span></label>
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_Traveloka" value="Traveloka"><span class="option-text">Traveloka</span></label>
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_Airbnb" value="Airbnb"><span class="option-text">Airbnb</span></label>
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_Website" value="Website"><span class="option-text">Website</span></label>
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_Zalo" value="Zalo"><span class="option-text">Zalo</span></label>
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_OTA_khac" value="OTA khác"><span class="option-text">OTA khác</span></label>
+    <label class="option-item"><input type="checkbox" name="Q32_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q32_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">33</span> Bạn muốn chiến lược bán phòng thiên về kênh nào?</div>
+                <div class="hint">Gợi ý: Bán trực tiếp để giảm phí OTA / Tăng hiện diện trên OTA trước / Kết hợp OTA và direct booking / Tập trung social media / Tập trung Google Search &amp; Google Maps.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q33_Choice_Ban_truc_tiep_e_giam_phi_OTA" value="Bán trực tiếp để giảm phí OTA"><span class="option-text">Bán trực tiếp để giảm phí OTA</span></label>
+    <label class="option-item"><input type="checkbox" name="Q33_Choice_Tang_hien_dien_tren_OTA_truoc" value="Tăng hiện diện trên OTA trước"><span class="option-text">Tăng hiện diện trên OTA trước</span></label>
+    <label class="option-item"><input type="checkbox" name="Q33_Choice_Ket_hop_OTA_va_direct_booking" value="Kết hợp OTA và direct booking"><span class="option-text">Kết hợp OTA và direct booking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q33_Choice_Tap_trung_social_media" value="Tập trung social media"><span class="option-text">Tập trung social media</span></label>
+    <label class="option-item"><input type="checkbox" name="Q33_Choice_Tap_trung_Google_Search_Google_Maps" value="Tập trung Google Search &amp; Google Maps"><span class="option-text">Tập trung Google Search &amp; Google Maps</span></label>
+    <label class="option-item"><input type="checkbox" name="Q33_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q33_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">34</span> Bạn đã có chính sách giá riêng cho từng kênh chưa?</div>
+                <div class="hint">Gợi ý: Giá trực tiếp, giá OTA, giá đại lý, giá cộng tác viên, giá ngày thường, cuối tuần, lễ Tết, mùa cao điểm/thấp điểm.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q34_Choice_Gia_truc_tiep" value="Giá trực tiếp"><span class="option-text">Giá trực tiếp</span></label>
+    <label class="option-item"><input type="checkbox" name="Q34_Choice_Gia_OTA" value="Giá OTA"><span class="option-text">Giá OTA</span></label>
+    <label class="option-item"><input type="checkbox" name="Q34_Choice_Gia_ai_ly" value="Giá đại lý"><span class="option-text">Giá đại lý</span></label>
+    <label class="option-item"><input type="checkbox" name="Q34_Choice_Gia_cong_tac_vien" value="Giá cộng tác viên"><span class="option-text">Giá cộng tác viên</span></label>
+    <label class="option-item"><input type="checkbox" name="Q34_Choice_Gia_ngay_thuong" value="Giá ngày thường"><span class="option-text">Giá ngày thường</span></label>
+    <label class="option-item"><input type="checkbox" name="Q34_Choice_Gia_cuoi_tuan" value="Giá cuối tuần"><span class="option-text">Giá cuối tuần</span></label>
+    <label class="option-item"><input type="checkbox" name="Q34_Choice_Gia_le_Tet" value="Giá lễ Tết"><span class="option-text">Giá lễ Tết</span></label>
+    <label class="option-item"><input type="checkbox" name="Q34_Choice_Gia_mua_cao_iem_thap_iem" value="Giá mùa cao điểm/thấp điểm"><span class="option-text">Giá mùa cao điểm/thấp điểm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q34_Choice_Chua_co_chinh_sach_gia_rieng" value="Chưa có chính sách giá riêng"><span class="option-text">Chưa có chính sách giá riêng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q34_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q34_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">35</span> Bạn đã có quy trình quản lý tồn phòng giữa các kênh chưa?</div>
+                <div class="hint">Gợi ý: Chưa có / Quản lý thủ công bằng Excel / Dùng Google Calendar / Dùng Channel Manager / Dùng PMS / Cần hệ thống tự động tránh overbooking.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q35_Choice_Chua_co" value="Chưa có"><span class="option-text">Chưa có</span></label>
+    <label class="option-item"><input type="checkbox" name="Q35_Choice_Quan_ly_thu_cong_bang_Excel" value="Quản lý thủ công bằng Excel"><span class="option-text">Quản lý thủ công bằng Excel</span></label>
+    <label class="option-item"><input type="checkbox" name="Q35_Choice_Dung_Google_Calendar" value="Dùng Google Calendar"><span class="option-text">Dùng Google Calendar</span></label>
+    <label class="option-item"><input type="checkbox" name="Q35_Choice_Dung_Channel_Manager" value="Dùng Channel Manager"><span class="option-text">Dùng Channel Manager</span></label>
+    <label class="option-item"><input type="checkbox" name="Q35_Choice_Dung_PMS" value="Dùng PMS"><span class="option-text">Dùng PMS</span></label>
+    <label class="option-item"><input type="checkbox" name="Q35_Choice_Can_he_thong_tu_ong_tranh_overbooking" value="Cần hệ thống tự động tránh overbooking"><span class="option-text">Cần hệ thống tự động tránh overbooking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q35_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q35_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">36</span> Bạn đã có tài khoản quảng cáo nào?</div>
+                <div class="hint">Gợi ý: Meta Ads, TikTok Ads, Google Ads, Zalo Ads, chưa có tài khoản nào, có nhưng chưa chạy, có nhưng bị hạn chế/tạm khóa.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q36_Choice_Meta_Ads" value="Meta Ads"><span class="option-text">Meta Ads</span></label>
+    <label class="option-item"><input type="checkbox" name="Q36_Choice_TikTok_Ads" value="TikTok Ads"><span class="option-text">TikTok Ads</span></label>
+    <label class="option-item"><input type="checkbox" name="Q36_Choice_Google_Ads" value="Google Ads"><span class="option-text">Google Ads</span></label>
+    <label class="option-item"><input type="checkbox" name="Q36_Choice_Zalo_Ads" value="Zalo Ads"><span class="option-text">Zalo Ads</span></label>
+    <label class="option-item"><input type="checkbox" name="Q36_Choice_Chua_co_tai_khoan_nao" value="Chưa có tài khoản nào"><span class="option-text">Chưa có tài khoản nào</span></label>
+    <label class="option-item"><input type="checkbox" name="Q36_Choice_Co_nhung_chua_chay" value="Có nhưng chưa chạy"><span class="option-text">Có nhưng chưa chạy</span></label>
+    <label class="option-item"><input type="checkbox" name="Q36_Choice_Co_nhung_bi_han_che_tam_khoa" value="Có nhưng bị hạn chế/tạm khóa"><span class="option-text">Có nhưng bị hạn chế/tạm khóa</span></label>
+    <label class="option-item"><input type="checkbox" name="Q36_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q36_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">37</span> Ngân sách quảng cáo marketing dự kiến mỗi tháng là bao nhiêu?</div>
+                <div class="hint">Gợi ý: Dưới 5 triệu / 5-10 triệu / 10-30 triệu / 30-50 triệu / 50-100 triệu / Trên 100 triệu / Chưa xác định.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q37_Choice_Duoi_5_trieu" value="Dưới 5 triệu"><span class="option-text">Dưới 5 triệu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q37_Choice_5_10_trieu" value="5-10 triệu"><span class="option-text">5-10 triệu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q37_Choice_10_30_trieu" value="10-30 triệu"><span class="option-text">10-30 triệu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q37_Choice_30_50_trieu" value="30-50 triệu"><span class="option-text">30-50 triệu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q37_Choice_50_100_trieu" value="50-100 triệu"><span class="option-text">50-100 triệu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q37_Choice_Tren_100_trieu" value="Trên 100 triệu"><span class="option-text">Trên 100 triệu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q37_Choice_Chua_xac_inh" value="Chưa xác định"><span class="option-text">Chưa xác định</span></label>
+    <label class="option-item"><input type="checkbox" name="Q37_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q37_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">38</span> Bạn muốn phân bổ ngân sách quảng cáo cho mục tiêu nào?</div>
+                <div class="hint">Gợi ý: Tăng nhận diện thương hiệu, tăng inbox hỏi phòng, tăng booking trực tiếp, tăng traffic website, tăng lượt xem TikTok, tăng review Google Maps, remarketing khách đã quan tâm.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q38_Choice_Tang_nhan_dien_thuong_hieu" value="Tăng nhận diện thương hiệu"><span class="option-text">Tăng nhận diện thương hiệu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q38_Choice_Tang_inbox_hoi_phong" value="Tăng inbox hỏi phòng"><span class="option-text">Tăng inbox hỏi phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q38_Choice_Tang_booking_truc_tiep" value="Tăng booking trực tiếp"><span class="option-text">Tăng booking trực tiếp</span></label>
+    <label class="option-item"><input type="checkbox" name="Q38_Choice_Tang_traffic_website" value="Tăng traffic website"><span class="option-text">Tăng traffic website</span></label>
+    <label class="option-item"><input type="checkbox" name="Q38_Choice_Tang_luot_xem_TikTok" value="Tăng lượt xem TikTok"><span class="option-text">Tăng lượt xem TikTok</span></label>
+    <label class="option-item"><input type="checkbox" name="Q38_Choice_Tang_review_Google_Maps" value="Tăng review Google Maps"><span class="option-text">Tăng review Google Maps</span></label>
+    <label class="option-item"><input type="checkbox" name="Q38_Choice_Remarketing_khach_a_quan_tam" value="Remarketing khách đã quan tâm"><span class="option-text">Remarketing khách đã quan tâm</span></label>
+    <label class="option-item"><input type="checkbox" name="Q38_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q38_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">39</span> Bạn muốn chạy quảng cáo trên những nền tảng nào trước?</div>
+                <div class="hint">Gợi ý: Facebook/Instagram Ads, TikTok Ads, Google Search Ads, Google Maps Ads, YouTube Ads, Zalo Ads, OTA promotion, KOL/KOC review.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q39_Choice_Facebook_Instagram_Ads" value="Facebook/Instagram Ads"><span class="option-text">Facebook/Instagram Ads</span></label>
+    <label class="option-item"><input type="checkbox" name="Q39_Choice_TikTok_Ads" value="TikTok Ads"><span class="option-text">TikTok Ads</span></label>
+    <label class="option-item"><input type="checkbox" name="Q39_Choice_Google_Search_Ads" value="Google Search Ads"><span class="option-text">Google Search Ads</span></label>
+    <label class="option-item"><input type="checkbox" name="Q39_Choice_Google_Maps_Ads" value="Google Maps Ads"><span class="option-text">Google Maps Ads</span></label>
+    <label class="option-item"><input type="checkbox" name="Q39_Choice_YouTube_Ads" value="YouTube Ads"><span class="option-text">YouTube Ads</span></label>
+    <label class="option-item"><input type="checkbox" name="Q39_Choice_Zalo_Ads" value="Zalo Ads"><span class="option-text">Zalo Ads</span></label>
+    <label class="option-item"><input type="checkbox" name="Q39_Choice_OTA_promotion" value="OTA promotion"><span class="option-text">OTA promotion</span></label>
+    <label class="option-item"><input type="checkbox" name="Q39_Choice_KOL_KOC_review" value="KOL/KOC review"><span class="option-text">KOL/KOC review</span></label>
+    <label class="option-item"><input type="checkbox" name="Q39_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q39_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">40</span> Bạn có ngân sách riêng cho sản xuất nội dung không?</div>
+                <div class="hint">Gợi ý: Chụp ảnh, quay video, flycam, review KOL/KOC, thiết kế visual, viết bài SEO, dựng video ngắn, quản lý social media.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q40_Choice_Chup_anh" value="Chụp ảnh"><span class="option-text">Chụp ảnh</span></label>
+    <label class="option-item"><input type="checkbox" name="Q40_Choice_Quay_video" value="Quay video"><span class="option-text">Quay video</span></label>
+    <label class="option-item"><input type="checkbox" name="Q40_Choice_Flycam" value="Flycam"><span class="option-text">Flycam</span></label>
+    <label class="option-item"><input type="checkbox" name="Q40_Choice_Review_KOL_KOC" value="Review KOL/KOC"><span class="option-text">Review KOL/KOC</span></label>
+    <label class="option-item"><input type="checkbox" name="Q40_Choice_Thiet_ke_visual" value="Thiết kế visual"><span class="option-text">Thiết kế visual</span></label>
+    <label class="option-item"><input type="checkbox" name="Q40_Choice_Viet_bai_SEO" value="Viết bài SEO"><span class="option-text">Viết bài SEO</span></label>
+    <label class="option-item"><input type="checkbox" name="Q40_Choice_Dung_video_ngan" value="Dựng video ngắn"><span class="option-text">Dựng video ngắn</span></label>
+    <label class="option-item"><input type="checkbox" name="Q40_Choice_Quan_ly_social_media" value="Quản lý social media"><span class="option-text">Quản lý social media</span></label>
+    <label class="option-item"><input type="checkbox" name="Q40_Choice_Chua_co_ngan_sach_rieng" value="Chưa có ngân sách riêng"><span class="option-text">Chưa có ngân sách riêng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q40_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q40_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">41</span> Bạn có mục tiêu cụ thể cho chi phí marketing không?</div>
+                <div class="hint">Gợi ý: Chi phí/inbox, chi phí/booking, doanh thu kỳ vọng từ quảng cáo, ROAS mục tiêu, số booking/tháng, công suất phòng mục tiêu.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q41_Choice_Chi_phi_inbox" value="Chi phí/inbox"><span class="option-text">Chi phí/inbox</span></label>
+    <label class="option-item"><input type="checkbox" name="Q41_Choice_Chi_phi_booking" value="Chi phí/booking"><span class="option-text">Chi phí/booking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q41_Choice_Doanh_thu_ky_vong_tu_quang_cao" value="Doanh thu kỳ vọng từ quảng cáo"><span class="option-text">Doanh thu kỳ vọng từ quảng cáo</span></label>
+    <label class="option-item"><input type="checkbox" name="Q41_Choice_ROAS_muc_tieu" value="ROAS mục tiêu"><span class="option-text">ROAS mục tiêu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q41_Choice_So_booking_thang" value="Số booking/tháng"><span class="option-text">Số booking/tháng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q41_Choice_Cong_suat_phong_muc_tieu" value="Công suất phòng mục tiêu"><span class="option-text">Công suất phòng mục tiêu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q41_Choice_Chua_xac_inh" value="Chưa xác định"><span class="option-text">Chưa xác định</span></label>
+    <label class="option-item"><input type="checkbox" name="Q41_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q41_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">42</span> Bạn muốn AI Agent hỗ trợ phần nào trong quản lý marketing?</div>
+                <div class="hint">Gợi ý: Lập lịch đăng bài, viết caption, tạo kịch bản video, phân tích hiệu quả quảng cáo, tổng hợp lead, nhắc nhân sự follow-up, báo cáo chi phí marketing, đề xuất nội dung theo mùa.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q42_Choice_Lap_lich_ang_bai" value="Lập lịch đăng bài"><span class="option-text">Lập lịch đăng bài</span></label>
+    <label class="option-item"><input type="checkbox" name="Q42_Choice_Viet_caption" value="Viết caption"><span class="option-text">Viết caption</span></label>
+    <label class="option-item"><input type="checkbox" name="Q42_Choice_Tao_kich_ban_video" value="Tạo kịch bản video"><span class="option-text">Tạo kịch bản video</span></label>
+    <label class="option-item"><input type="checkbox" name="Q42_Choice_Phan_tich_hieu_qua_quang_cao" value="Phân tích hiệu quả quảng cáo"><span class="option-text">Phân tích hiệu quả quảng cáo</span></label>
+    <label class="option-item"><input type="checkbox" name="Q42_Choice_Tong_hop_lead" value="Tổng hợp lead"><span class="option-text">Tổng hợp lead</span></label>
+    <label class="option-item"><input type="checkbox" name="Q42_Choice_Nhac_nhan_su_follow_up" value="Nhắc nhân sự follow-up"><span class="option-text">Nhắc nhân sự follow-up</span></label>
+    <label class="option-item"><input type="checkbox" name="Q42_Choice_Bao_cao_chi_phi_marketing" value="Báo cáo chi phí marketing"><span class="option-text">Báo cáo chi phí marketing</span></label>
+    <label class="option-item"><input type="checkbox" name="Q42_Choice_e_xuat_noi_dung_theo_mua" value="Đề xuất nội dung theo mùa"><span class="option-text">Đề xuất nội dung theo mùa</span></label>
+    <label class="option-item"><input type="checkbox" name="Q42_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q42_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div>
+        </div><div class="form-section">
+            <div class="section-note">Phần 7 / 9</div>
+            <h2>G. Marketing và nội dung truyền thông</h2>
+            <div class="question-group">
+                <div class="question-title"><span class="q-number">43</span> Bạn muốn thương hiệu xuất hiện với hình ảnh như thế nào trên mạng xã hội?</div>
+                <div class="hint">Gợi ý: Sang trọng, gần gũi, thiên nhiên, chữa lành, phiêu lưu, gia đình, địa phương, tối giản, trẻ trung, cao cấp.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_Sang_trong" value="Sang trọng"><span class="option-text">Sang trọng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_Gan_gui" value="Gần gũi"><span class="option-text">Gần gũi</span></label>
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_Thien_nhien" value="Thiên nhiên"><span class="option-text">Thiên nhiên</span></label>
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_Chua_lanh" value="Chữa lành"><span class="option-text">Chữa lành</span></label>
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_Phieu_luu" value="Phiêu lưu"><span class="option-text">Phiêu lưu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_Gia_inh" value="Gia đình"><span class="option-text">Gia đình</span></label>
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_ia_phuong" value="Địa phương"><span class="option-text">Địa phương</span></label>
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_Toi_gian" value="Tối giản"><span class="option-text">Tối giản</span></label>
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_Tre_trung" value="Trẻ trung"><span class="option-text">Trẻ trung</span></label>
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_Cao_cap" value="Cao cấp"><span class="option-text">Cao cấp</span></label>
+    <label class="option-item"><input type="checkbox" name="Q43_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q43_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">44</span> Bạn đã có kế hoạch nội dung chưa?</div>
+                <div class="hint">Gợi ý: Chưa có / Có nhưng chưa đều / Có lịch đăng / Có đội content / Có hình ảnh video chuyên nghiệp.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q44_Choice_Chua_co" value="Chưa có"><span class="option-text">Chưa có</span></label>
+    <label class="option-item"><input type="checkbox" name="Q44_Choice_Co_nhung_chua_eu" value="Có nhưng chưa đều"><span class="option-text">Có nhưng chưa đều</span></label>
+    <label class="option-item"><input type="checkbox" name="Q44_Choice_Co_lich_ang" value="Có lịch đăng"><span class="option-text">Có lịch đăng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q44_Choice_Co_oi_content" value="Có đội content"><span class="option-text">Có đội content</span></label>
+    <label class="option-item"><input type="checkbox" name="Q44_Choice_Co_hinh_anh_video_chuyen_nghiep" value="Có hình ảnh/video chuyên nghiệp"><span class="option-text">Có hình ảnh/video chuyên nghiệp</span></label>
+    <label class="option-item"><input type="checkbox" name="Q44_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q44_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">45</span> Những nội dung nào bạn muốn AI hỗ trợ tạo tự động?</div>
+                <div class="hint">Gợi ý: Bài Facebook, caption Instagram, kịch bản TikTok, email chăm sóc khách, nội dung Zalo, bài blog SEO, quảng cáo, chatbot trả lời khách.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q45_Choice_Bai_Facebook" value="Bài Facebook"><span class="option-text">Bài Facebook</span></label>
+    <label class="option-item"><input type="checkbox" name="Q45_Choice_Caption_Instagram" value="Caption Instagram"><span class="option-text">Caption Instagram</span></label>
+    <label class="option-item"><input type="checkbox" name="Q45_Choice_Kich_ban_TikTok" value="Kịch bản TikTok"><span class="option-text">Kịch bản TikTok</span></label>
+    <label class="option-item"><input type="checkbox" name="Q45_Choice_Email_cham_soc_khach" value="Email chăm sóc khách"><span class="option-text">Email chăm sóc khách</span></label>
+    <label class="option-item"><input type="checkbox" name="Q45_Choice_Noi_dung_Zalo" value="Nội dung Zalo"><span class="option-text">Nội dung Zalo</span></label>
+    <label class="option-item"><input type="checkbox" name="Q45_Choice_Bai_blog_SEO" value="Bài blog SEO"><span class="option-text">Bài blog SEO</span></label>
+    <label class="option-item"><input type="checkbox" name="Q45_Choice_Quang_cao" value="Quảng cáo"><span class="option-text">Quảng cáo</span></label>
+    <label class="option-item"><input type="checkbox" name="Q45_Choice_Chatbot_tra_loi_khach" value="Chatbot trả lời khách"><span class="option-text">Chatbot trả lời khách</span></label>
+    <label class="option-item"><input type="checkbox" name="Q45_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q45_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div>
+        </div><div class="form-section">
+            <div class="section-note">Phần 8 / 9</div>
+            <h2>H. Vận hành, nhân sự và tự động hóa</h2>
+            <div class="question-group">
+                <div class="question-title"><span class="q-number">46</span> Đội ngũ vận hành hiện tại gồm những ai?</div>
+                <div class="hint">Gợi ý: Chủ đầu tư, quản lý, lễ tân, housekeeping, bếp, bảo vệ, kỹ thuật, sale, marketing, kế toán, cộng tác viên địa phương.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Chu_au_tu" value="Chủ đầu tư"><span class="option-text">Chủ đầu tư</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Quan_ly" value="Quản lý"><span class="option-text">Quản lý</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Le_tan" value="Lễ tân"><span class="option-text">Lễ tân</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Housekeeping" value="Housekeeping"><span class="option-text">Housekeeping</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Bep" value="Bếp"><span class="option-text">Bếp</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Bao_ve" value="Bảo vệ"><span class="option-text">Bảo vệ</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Ky_thuat" value="Kỹ thuật"><span class="option-text">Kỹ thuật</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Sale" value="Sale"><span class="option-text">Sale</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Marketing" value="Marketing"><span class="option-text">Marketing</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Ke_toan" value="Kế toán"><span class="option-text">Kế toán</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Cong_tac_vien_ia_phuong" value="Cộng tác viên địa phương"><span class="option-text">Cộng tác viên địa phương</span></label>
+    <label class="option-item"><input type="checkbox" name="Q46_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q46_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">47</span> Những phần nào bạn muốn tự động hóa bằng AI Agent Ops?</div>
+                <div class="hint">Gợi ý: Quản lý booking, trả lời khách, báo giá, nhắc thanh toán, lịch dọn phòng, checklist vận hành, phân công nhân sự, báo cáo doanh thu, dashboard công suất phòng, chăm sóc khách sau lưu trú, quản lý review.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Quan_ly_booking" value="Quản lý booking"><span class="option-text">Quản lý booking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Tra_loi_khach" value="Trả lời khách"><span class="option-text">Trả lời khách</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Bao_gia" value="Báo giá"><span class="option-text">Báo giá</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Nhac_thanh_toan" value="Nhắc thanh toán"><span class="option-text">Nhắc thanh toán</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Lich_don_phong" value="Lịch dọn phòng"><span class="option-text">Lịch dọn phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Checklist_van_hanh" value="Checklist vận hành"><span class="option-text">Checklist vận hành</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Phan_cong_nhan_su" value="Phân công nhân sự"><span class="option-text">Phân công nhân sự</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Bao_cao_doanh_thu" value="Báo cáo doanh thu"><span class="option-text">Báo cáo doanh thu</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Dashboard_cong_suat_phong" value="Dashboard công suất phòng"><span class="option-text">Dashboard công suất phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Cham_soc_khach_sau_luu_tru" value="Chăm sóc khách sau lưu trú"><span class="option-text">Chăm sóc khách sau lưu trú</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Quan_ly_review" value="Quản lý review"><span class="option-text">Quản lý review</span></label>
+    <label class="option-item"><input type="checkbox" name="Q47_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q47_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">48</span> Vấn đề lớn nhất bạn đang gặp phải khi xây dựng hoặc vận hành homestay/resort là gì?</div>
+                <div class="hint">Gợi ý: Mô tả 1-3 vấn đề ưu tiên cần giải quyết ngay.</div>
+                <textarea name="Q48_Van_e_lon_nhat_ban_ang_gap_phai_khi_xay_dung_hoac_van_hanh_h" class="text-area-field" rows="3" placeholder="Nhập câu trả lời tại đây..."></textarea>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">49</span> Trong 90 ngày tới, bạn muốn AI Gen Labs giúp đạt được kết quả cụ thể nào?</div>
+                <div class="hint">Gợi ý: Có hệ thống booking, chatbot, kế hoạch marketing, 100 booking đầu tiên, tăng công suất phòng, giảm phụ thuộc nhân sự, dashboard quản trị.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q49_Choice_Co_he_thong_booking" value="Có hệ thống booking"><span class="option-text">Có hệ thống booking</span></label>
+    <label class="option-item"><input type="checkbox" name="Q49_Choice_Co_chatbot" value="Có chatbot"><span class="option-text">Có chatbot</span></label>
+    <label class="option-item"><input type="checkbox" name="Q49_Choice_Co_ke_hoach_marketing" value="Có kế hoạch marketing"><span class="option-text">Có kế hoạch marketing</span></label>
+    <label class="option-item"><input type="checkbox" name="Q49_Choice_Co_100_booking_au_tien" value="Có 100 booking đầu tiên"><span class="option-text">Có 100 booking đầu tiên</span></label>
+    <label class="option-item"><input type="checkbox" name="Q49_Choice_Tang_cong_suat_phong" value="Tăng công suất phòng"><span class="option-text">Tăng công suất phòng</span></label>
+    <label class="option-item"><input type="checkbox" name="Q49_Choice_Giam_phu_thuoc_nhan_su" value="Giảm phụ thuộc nhân sự"><span class="option-text">Giảm phụ thuộc nhân sự</span></label>
+    <label class="option-item"><input type="checkbox" name="Q49_Choice_Co_dashboard_quan_tri" value="Có dashboard quản trị"><span class="option-text">Có dashboard quản trị</span></label>
+    <label class="option-item"><input type="checkbox" name="Q49_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q49_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div><div class="question-group">
+                <div class="question-title"><span class="q-number">50</span> Bạn muốn ưu tiên triển khai phần nào trước?</div>
+                <div class="hint">Gợi ý: Sale / Marketing / Vận hành / Tự động hóa / Dashboard quản trị / Tất cả từ A-Z.</div>
+                <div class="option-list multi-choice-list">
+    <label class="option-item"><input type="checkbox" name="Q50_Choice_Sale" value="Sale"><span class="option-text">Sale</span></label>
+    <label class="option-item"><input type="checkbox" name="Q50_Choice_Marketing" value="Marketing"><span class="option-text">Marketing</span></label>
+    <label class="option-item"><input type="checkbox" name="Q50_Choice_Van_hanh" value="Vận hành"><span class="option-text">Vận hành</span></label>
+    <label class="option-item"><input type="checkbox" name="Q50_Choice_Tu_ong_hoa" value="Tự động hóa"><span class="option-text">Tự động hóa</span></label>
+    <label class="option-item"><input type="checkbox" name="Q50_Choice_Dashboard_quan_tri" value="Dashboard quản trị"><span class="option-text">Dashboard quản trị</span></label>
+    <label class="option-item"><input type="checkbox" name="Q50_Choice_Tat_ca_tu_A_Z" value="Tất cả từ A-Z"><span class="option-text">Tất cả từ A-Z</span></label>
+    <label class="option-item"><input type="checkbox" name="Q50_Choice_Khac" value="Có" class="trigger-other"><span class="option-text">Khác</span></label>
+    <div class="other-input-wrapper"><input type="text" name="Q50_Khac_Chi_Tiet" class="other-text-input" placeholder="Nhập lựa chọn khác..."></div>
+</div>
+            </div>
+        </div><div class="form-section">
+            <div class="section-note">Phần 9 / 9</div>
+            <h2>Output sau khi khách điền form</h2>
+            <p class="intro-text">Sau khi nhận đủ thông tin, AI Gen Labs có thể dùng dữ liệu này để xây dựng bộ tài liệu khởi động business homestay/resort từ chiến lược đến vận hành.</p>
+            <div class="output-grid"><div class="output-card"><strong>Business Model Blueprint</strong><span>Mô hình kinh doanh, định vị, nguồn doanh thu và chiến lược giá.</span></div>
+<div class="output-card"><strong>Sales System Map</strong><span>Quy trình bán phòng, tư vấn, giữ phòng, thu cọc và chăm sóc khách.</span></div>
+<div class="output-card"><strong>Marketing Launch Plan</strong><span>Kế hoạch truyền thông 30-90 ngày theo ngân sách và kênh ưu tiên.</span></div>
+<div class="output-card"><strong>Channel Setup Checklist</strong><span>Checklist khởi tạo Facebook, Google Maps, TikTok, Booking, Agoda, Traveloka, Airbnb và các kênh direct booking.</span></div>
+<div class="output-card"><strong>Guest Journey Automation</strong><span>Hành trình tự động hóa từ lead, booking, pre-arrival, check-in, upsell, review đến rebooking.</span></div>
+<div class="output-card"><strong>Operation SOP Kit</strong><span>Checklist vận hành, housekeeping, phân công nhân sự, xử lý sự cố và báo cáo nội bộ.</span></div>
+<div class="output-card"><strong>AI Agent Ops Roadmap</strong><span>Lộ trình triển khai chatbot, CRM, booking, dashboard, báo cáo doanh thu và marketing automation.</span></div></div>
+            <div class="question-group" style="margin-top: 24px; border-top: 1px dashed var(--border-color); padding-top: 20px;">
+                <div class="question-title">Ghi chú thêm hoặc link tài liệu hiện có</div>
+                <div class="hint">Có thể dán link Drive chứa ảnh, video, bảng giá, bản vẽ, tài khoản kênh bán, file booking hoặc dữ liệu vận hành.</div>
+                <textarea name="Ghi_Chu_Them_Link_Tai_Lieu" class="text-area-field" rows="5" placeholder="Dán link hoặc ghi chú tại đây..."></textarea>
+            </div>
+        </div>
+        <div class="nav-buttons" id="navigationButtonsContainer">
+            <button type="button" class="btn-back" id="btnBack" onclick="changeSection(-1)" disabled>Quay lại</button>
+            <button type="button" class="btn-next" id="btnNext" onclick="changeSection(1)">Tiếp theo</button>
+        </div>
+    </form>
+</div>
+<script>
+    let currentSection = 0;
+    const sections = document.querySelectorAll('.form-section');
+    const dots = document.querySelectorAll('.step-dot');
+    const btnBack = document.getElementById('btnBack');
+    const btnNext = document.getElementById('btnNext');
+    const progressFill = document.getElementById('progressFill');
+    const mainForm = document.getElementById('masterForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingText = document.getElementById('loadingText');
+    const progressContainer = document.getElementById('progressContainer');
+
+
+    function bindChoiceUI(scope = document) {
+        scope.querySelectorAll('.option-item input').forEach(input => {
+            const label = input.closest('.option-item');
+            const list = input.closest('.option-list');
+            const otherWrapper = label?.nextElementSibling?.classList?.contains('other-input-wrapper') ? label.nextElementSibling : null;
+
+            function sync() {
+                if (input.type === 'radio' && input.name && list) {
+                    list.querySelectorAll(`input[type="radio"][name="${CSS.escape(input.name)}"]`).forEach(r => {
+                        r.closest('.option-item')?.classList.toggle('selected', r.checked);
+                        const wrap = r.closest('.option-item')?.nextElementSibling;
+                        if (wrap?.classList?.contains('other-input-wrapper')) wrap.style.display = r.checked && r.classList.contains('trigger-other') ? 'block' : 'none';
+                    });
+                } else {
+                    label?.classList.toggle('selected', input.checked);
+                    if (otherWrapper) otherWrapper.style.display = input.checked ? 'block' : 'none';
+                }
+            }
+            input.addEventListener('change', sync);
+            sync();
+        });
+    }
+    bindChoiceUI();
+
+    function updateUI() {
+        sections.forEach((sec, index) => {
+            sec.style.display = (index === currentSection) ? 'block' : 'none';
+            sec.classList.toggle('active', index === currentSection);
+        });
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentSection);
+            dot.classList.toggle('completed', index < currentSection);
+        });
+        const progressPercent = (currentSection / (sections.length - 1)) * 100;
+        progressFill.style.width = `${progressPercent}%`;
+        if(dots[currentSection]) {
+            const dotOffset = dots[currentSection].offsetLeft;
+            const containerWidth = progressContainer.clientWidth;
+            progressContainer.scrollTo({ left: dotOffset - (containerWidth / 2) + 15, behavior: 'smooth' });
+        }
+        btnBack.disabled = (currentSection === 0);
+        btnNext.textContent = (currentSection === sections.length - 1) ? "Tải File PDF & Gửi Form" : "Tiếp theo";
+        btnNext.style.background = (currentSection === sections.length - 1) ? "var(--primary-dark)" : "var(--primary-color)";
+    }
+    function changeSection(direction) {
+        if (direction === 1 && currentSection === sections.length - 1) { handleFormSubmission(); return; }
+        currentSection += direction;
+        if (currentSection < 0) currentSection = 0;
+        if (currentSection > sections.length - 1) currentSection = sections.length - 1;
+        updateUI(); window.scrollTo(0, 0);
+    }
+    function goToSection(index) { currentSection = index; updateUI(); window.scrollTo(0, 0); }
+    function handleFormSubmission() {
+        loadingOverlay.style.display = 'flex';
+        loadingText.textContent = "Đang kết xuất form khởi động homestay/resort thành PDF...";
+        const opt = {
+            margin: 10,
+            filename: 'AI_Gen_Labs_Form_Khoi_Dong_Homestay_Resort.pdf',
+            image: { type: 'jpeg', quality: 0.85 },
+            html2canvas: { scale: 1.5, useCORS: true, logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        const formClone = mainForm.cloneNode(true);
+        formClone.querySelectorAll('.form-section').forEach(sec => { sec.style.display = 'block'; sec.classList.add('active'); });
+        formClone.querySelector('.nav-buttons')?.remove();
+        const wrapper = document.createElement('div');
+        wrapper.style.padding = '12px';
+        const title = document.createElement('h1');
+        title.textContent = 'AI Gen Labs - Form Khởi Động Business Homestay / Resort';
+        title.style.fontSize = '22px'; title.style.marginBottom = '12px'; title.style.color = '#1F3A31';
+        wrapper.appendChild(title); wrapper.appendChild(formClone);
+        html2pdf().set(opt).from(wrapper).save().then(function() {
+            loadingText.textContent = "Đang gửi dữ liệu form...";
+            mainForm.submit();
+        }).catch(function() { mainForm.submit(); });
+    }
+    updateUI();
+</script>
+</body>
+</html>
