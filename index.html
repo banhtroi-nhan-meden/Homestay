@@ -950,27 +950,53 @@
     function goToSection(index) { currentSection = index; updateUI(); window.scrollTo(0, 0); }
     function handleFormSubmission() {
         loadingOverlay.style.display = 'flex';
-        loadingText.textContent = "Đang kết xuất form khởi động homestay/resort thành PDF...";
-        const opt = {
-            margin: 10,
-            filename: 'AI_Gen_Labs_Form_Khoi_Dong_Homestay_Resort.pdf',
-            image: { type: 'jpeg', quality: 0.85 },
-            html2canvas: { scale: 1.5, useCORS: true, logging: false },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        const formClone = mainForm.cloneNode(true);
-        formClone.querySelectorAll('.form-section').forEach(sec => { sec.style.display = 'block'; sec.classList.add('active'); });
-        formClone.querySelector('.nav-buttons')?.remove();
-        const wrapper = document.createElement('div');
-        wrapper.style.padding = '12px';
-        const title = document.createElement('h1');
-        title.textContent = 'AI Gen Labs - Form Khởi Động Business Homestay / Resort';
-        title.style.fontSize = '22px'; title.style.marginBottom = '12px'; title.style.color = '#1F3A31';
-        wrapper.appendChild(title); wrapper.appendChild(formClone);
-        html2pdf().set(opt).from(wrapper).save().then(function() {
+        btnNext.disabled = true;
+        loadingText.textContent = "Đang chuẩn bị gửi dữ liệu form...";
+
+        // Fallback gửi form thật. Dùng native submit để hoạt động với GitHub Pages + Formspree.
+        function submitNow() {
             loadingText.textContent = "Đang gửi dữ liệu form...";
-            mainForm.submit();
-        }).catch(function() { mainForm.submit(); });
+            setTimeout(function() {
+                mainForm.submit();
+            }, 150);
+        }
+
+        // Nếu thư viện PDF không tải được, vẫn phải submit form thay vì đứng loading.
+        if (typeof html2pdf === 'undefined') {
+            console.warn('html2pdf chưa tải được. Bỏ qua bước xuất PDF và gửi form trực tiếp.');
+            submitNow();
+            return;
+        }
+
+        try {
+            loadingText.textContent = "Đang kết xuất form thành PDF...";
+            const opt = {
+                margin: 10,
+                filename: 'AI_Gen_Labs_Form_Khoi_Dong_Homestay_Resort.pdf',
+                image: { type: 'jpeg', quality: 0.85 },
+                html2canvas: { scale: 1.2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            const formClone = mainForm.cloneNode(true);
+            formClone.querySelectorAll('.form-section').forEach(sec => { sec.style.display = 'block'; sec.classList.add('active'); });
+            formClone.querySelector('.nav-buttons')?.remove();
+            const wrapper = document.createElement('div');
+            wrapper.style.padding = '12px';
+            const title = document.createElement('h1');
+            title.textContent = 'AI Gen Labs - Form Khởi Động Business Homestay / Resort';
+            title.style.fontSize = '22px'; title.style.marginBottom = '12px'; title.style.color = '#1F3A31';
+            wrapper.appendChild(title); wrapper.appendChild(formClone);
+
+            html2pdf().set(opt).from(wrapper).save()
+                .then(submitNow)
+                .catch(function(err) {
+                    console.warn('Xuất PDF lỗi, vẫn gửi form:', err);
+                    submitNow();
+                });
+        } catch (err) {
+            console.warn('Lỗi khi xử lý PDF, vẫn gửi form:', err);
+            submitNow();
+        }
     }
     updateUI();
 </script>
